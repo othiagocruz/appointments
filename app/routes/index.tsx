@@ -1,46 +1,21 @@
-import { json } from "@remix-run/node";
+import AppointmentList from "../components/appointments-list";
 import { useLoaderData } from "@remix-run/react";
-import { createClient } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { supabase } from "~/lib/supabase-client";
+import { type Appointment } from "~/models/appointments";
+import { json, type LoaderFunction } from "@remix-run/node";
 
-export const loader = () => {
-  return json({
-    url: process.env.SUPABASE_URL!,
-    token: process.env.SUPABASE_TOKEN!
-  })
-}
+export const loader: LoaderFunction = async () => {
+  const { data } = await supabase.from<Appointment>("appointments").select();
 
-interface Appointment {
-  id: number
-}
+  return json(data);
+};
 
 export default function Index() {
-  const { url, token } = useLoaderData<typeof loader>()
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-  const supabaseClient = createClient(url, token)
-
-  useEffect(() => {
-    supabaseClient.from<Appointment>('appointments').select().then((response) => {
-      if (response.error) {
-        console.error('Error fetching appointments', response.error)
-        return
-      }
-
-      if (!response.data) {
-        console.error('No appointments found')
-        return
-      }
-
-      setAppointments(response.data)
-    })
-  }, [supabaseClient])
-
+  const appointments = useLoaderData<Appointment[]>();
   return (
     <div>
       <h1>Appointments</h1>
-      <ul>
-        {appointments?.map((appointment) => <li key={appointment.id}>{appointment.id}</li>)}
-      </ul>
+      <AppointmentList appointments={appointments} />
     </div>
   );
 }

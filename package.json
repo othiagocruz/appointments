@@ -1,5 +1,13 @@
 {
   "private": true,
+  "name": "appointments",
+  "description": "Teste técnico para a Quaddro",
+  "contributors": [
+    {
+      "name": "Thiago Cruz Santos",
+      "email": "thiagocruzsantos@gmail.com"
+    }
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "remix build",
