@@ -44,6 +44,9 @@ export default function AppointmentForm({
       {actionData?.errors.start ? (
         <p style={{ color: "red" }}>{actionData.errors.start}</p>
       ) : null}
+      {actionData?.errors.finish ? (
+        <p style={{ color: "red" }}>{actionData.errors.finish}</p>
+      ) : null}
       <button type="submit">Submit</button>
     </Form>
   );

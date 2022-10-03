@@ -6,9 +6,9 @@ import {
   type ActionFunction,
   json,
   type LoaderFunction,
-  redirect,
 } from "@remix-run/node";
 import AppointmentForm from "~/components/appointments-form";
+import { create, remove } from "~/actions/appointments";
 
 export const loader: LoaderFunction = async () => {
   const { data } = await supabase.from<Appointment>("appointments").select();
@@ -16,26 +16,15 @@ export const loader: LoaderFunction = async () => {
   return json(data);
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const appointment = {
-    title: formData.get("title"),
-    start: formData.get("start")?.toString(),
-    finish: formData.get("finish")?.toString(),
-  };
-
-  // This validation could also be done on database side with postgres check constrains
-  // Did here to keep the test requirements in the same place
-  const start = new Date(appointment.start!);
-  const finish = new Date(appointment.finish!);
-  if (start > finish) {
-    return json({
-      errors: { start: "Start date is bigger than finish" },
-      values: appointment,
-    });
+export const action: ActionFunction = async (ev) => {
+  switch (ev.request.method) {
+    case "POST": {
+      return create(ev);
+    }
+    case "DELETE": {
+      return remove(ev);
+    }
   }
-  await supabase.from("appointments").insert([appointment]).single();
-  return redirect("/");
 };
 
 export default function Index() {
