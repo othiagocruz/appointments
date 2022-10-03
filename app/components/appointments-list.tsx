@@ -8,12 +8,15 @@ export default function AppointmentList({
 }) {
   useRevalidateOnFocus({ enabled: true });
   return (
-    <ul>
-      {appointments?.map((appointment) => (
-        <li key={appointment.id}>
-          {appointment.id} - {appointment.title} - {appointment.created_at}
-        </li>
-      ))}
-    </ul>
+    <>
+      <h1>Appointments</h1>
+      <ul>
+        {appointments?.map((appointment) => (
+          <li key={appointment.id}>
+            {appointment.id} - {appointment.title} - {appointment.created_at}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
