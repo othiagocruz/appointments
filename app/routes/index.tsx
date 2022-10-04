@@ -1,4 +1,4 @@
-import AppointmentList from "../components/appointments-list";
+import AppointmentList from "~/components/appointments-list";
 import { useLoaderData } from "@remix-run/react";
 import { supabase } from "~/lib/supabase-client";
 import { type Appointment } from "~/models/appointments";
@@ -9,9 +9,24 @@ import {
 } from "@remix-run/node";
 import AppointmentForm from "~/components/appointments-form";
 import { create, remove } from "~/actions/appointments";
+import AppointmentsFilter from "~/components/appointments-filter";
 
-export const loader: LoaderFunction = async () => {
-  const { data } = await supabase.from<Appointment>("appointments").select();
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const search = new URLSearchParams(url.search);
+
+  let query = supabase.from<Appointment>("appointments").select();
+
+  const order = search.get("order")! as keyof Appointment;
+  if (order) {
+    query.order(order, { ascending: false }); // added ascending for better confirmation of the requirement
+  }
+  const title = search.get("t")! as keyof Appointment;
+  if (title) {
+    query.like("title", title);
+  }
+
+  const { data } = await query;
 
   return json(data);
 };
@@ -32,6 +47,7 @@ export default function Index() {
   return (
     <main>
       <AppointmentList appointments={appointments} />
+      <AppointmentsFilter />
       <AppointmentForm />
     </main>
   );

@@ -6,8 +6,9 @@ export const create: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const appointment = {
     title: formData.get("title"),
-    start: formData.get("start")?.toString(),
-    finish: formData.get("finish")?.toString(),
+    // Converts date from local to UTC, supabase uses UTC format for timestampz fields
+    start: new Date(formData.get("start")?.toString()!).toUTCString(),
+    finish: new Date(formData.get("finish")?.toString()!).toUTCString(),
   };
 
   // This validation could also be done on database side with postgres check constrains
@@ -20,6 +21,7 @@ export const create: ActionFunction = async ({ request }) => {
       values: appointment,
     });
   }
+
   // Check for an appointment where start overlaps
   const { data: startOverlaps } = await supabase
     .from<Appointment>("appointments")
